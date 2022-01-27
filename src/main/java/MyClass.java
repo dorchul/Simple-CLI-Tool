@@ -24,6 +24,7 @@ public class MyClass {
         updateCurrentTime();
     }
 
+    // TODO: Can URISyntaxException even happen?
     private static String getCurrentTime() throws IOException, URISyntaxException {
         HttpResponse<JsonNode> response = Unirest.get(configObject.timeApi.url)
                 .queryString("accesskey", configObject.timeApi.timeApiAccessKey)
@@ -40,19 +41,28 @@ public class MyClass {
         File fileToUpdate = new File(configObject.fileToUpdate);
         File tempFile = File.createTempFile("java-ex-time-replaced-", null);
 
-        BufferedReader reader = new BufferedReader(new FileReader(fileToUpdate));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
         // TODO: Is the ISO format ok?
-        // TODO: Handle errors and make sure the files are closed.
         String currentTime = getCurrentTime();
-        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            writer.write(line.replaceAll(textToUpdate, currentTime));
-            writer.newLine();
+        try {
+            reader = new BufferedReader(new FileReader(fileToUpdate));
+            writer = new BufferedWriter(new FileWriter(tempFile));
+            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+                writer.write(line.replaceAll(textToUpdate, currentTime));
+                writer.newLine();
+            }
+            tempFile.renameTo(fileToUpdate);
+        } catch (IOException e) {
+            tempFile.delete();
+            throw e;
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+            if (writer != null) {
+                writer.close();
+            }
         }
-
-        tempFile.renameTo(fileToUpdate);
-        reader.close();
-        writer.close();
     }
 }
