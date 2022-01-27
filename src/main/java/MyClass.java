@@ -9,23 +9,17 @@ import kong.unirest.Unirest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-public class MyClass {
+class CurrentTimeReplacer {
     private static final Logger logger = LogManager.getLogger();
-    private static Config configObject;
+    private Config configObject;
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
-        if (args.length != 1) {
-            System.err.println("Usage: [program] [config_file_path]");
-            System.exit(1);
-        }
+    CurrentTimeReplacer(String configFilePath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        MyClass.configObject = mapper.readValue(new File(args[0]), Config.class);
-        updateCurrentTime();
+        configObject = mapper.readValue(new File(configFilePath), Config.class);
     }
 
     // TODO: Can URISyntaxException even happen?
-    private static String getCurrentTime() throws IOException, URISyntaxException {
+    private String getCurrentTime() throws IOException, URISyntaxException {
         HttpResponse<JsonNode> response = Unirest.get(configObject.timeApi.url)
                 .queryString("accesskey", configObject.timeApi.timeApiAccessKey)
                 .queryString("secretkey", configObject.timeApi.timeApiSecretKey)
@@ -36,7 +30,7 @@ public class MyClass {
                 getJSONObject(0).getJSONObject("time").get("iso").toString();
     }
 
-    public static void updateCurrentTime() throws IOException, URISyntaxException {
+    void updateCurrentTime() throws IOException, URISyntaxException {
         String textToUpdate = configObject.textToUpdate;
         File fileToUpdate = new File(configObject.fileToUpdate);
         File tempFile = File.createTempFile("java-ex-time-replaced-", null);
@@ -63,6 +57,22 @@ public class MyClass {
             if (writer != null) {
                 writer.close();
             }
+        }
+    }
+}
+
+class Main {
+    public static void main(String[] args) throws IOException, URISyntaxException {
+        if (args.length != 1) {
+            System.err.println("Usage: [program] [config_file_path]");
+            System.exit(1);
+        }
+        try {
+            CurrentTimeReplacer replacer = new CurrentTimeReplacer(args[0]);
+            replacer.updateCurrentTime();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 }
