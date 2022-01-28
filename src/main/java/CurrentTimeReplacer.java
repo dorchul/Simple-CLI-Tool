@@ -11,11 +11,11 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 class CurrentTimeReplacer
 {
     private final Config config;
-    private final Logger logger;
+/*    private final Logger logger;*/
 
-    CurrentTimeReplacer(String configFilePath, Logger logger) throws IOException
+    CurrentTimeReplacer(String configFilePath) throws IOException
     {
-        this.logger = logger;
+/*        this.logger = logger;*/
 
         // mapper from jason to/from java objects
         ObjectMapper mapper = new ObjectMapper();
@@ -23,7 +23,7 @@ class CurrentTimeReplacer
         // map config file to config object
         this.config = mapper.readValue(new File(configFilePath), Config.class);
 
-        this.logger.info("initialized config successfully");
+/*        this.logger.info("initialized config successfully");*/
     }
 
     private String getCurrentTime()
@@ -42,8 +42,12 @@ class CurrentTimeReplacer
 
     void updateCurrentTime() throws IOException
     {
-        // create a file object for config file
-        File fileToUpdate = new File(config.fileToUpdate);
+        File fileToUpdate;
+        if (config.fileToUpdate == null) {
+            fileToUpdate = new File("/home/input.txt");
+        } else {
+            fileToUpdate = new File(config.fileToUpdate);
+        }
 
         // create a temporary file to buffer the updated text
         File tempFile = File.createTempFile("java-ex-time-replaced-", null);
@@ -61,8 +65,10 @@ class CurrentTimeReplacer
 
             // writer for the updated content
             writer = new BufferedWriter(new FileWriter(tempFile));
+/*
 
             logger.info("created a buffered reader and writer successfully");
+*/
 
             // iterate through file lines
             // for each line, write the updated line to the file for the updated content
@@ -76,7 +82,7 @@ class CurrentTimeReplacer
         catch (IOException e)
         {
             tempFile.delete();
-            logger.error("failed file I/O operation", e);
+/*            logger.error("failed file I/O operation", e);*/
             throw e;
         }
 

@@ -7,16 +7,27 @@ class Main
 {
     public static void main(String[] args)
     {
-        System.out.println();
+/*        System.out.println();
         if (args.length != 1)
         {
             System.err.println("Usage: [program] [config_file_path]");
             System.exit(1);
+        }*/
+
+        String configFilePath;
+        if (args.length == 0)
+        {
+            configFilePath = "/home/config.json";
+        }
+
+        else
+        {
+            configFilePath = args[0];
         }
 
         try
         {
-            CurrentTimeReplacer replacer = new CurrentTimeReplacer(args[0], LogManager.getLogger(CurrentTimeReplacer.class));
+            CurrentTimeReplacer replacer = new CurrentTimeReplacer(configFilePath);
             replacer.updateCurrentTime();
         }
 
