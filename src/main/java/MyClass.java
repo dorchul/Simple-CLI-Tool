@@ -31,7 +31,6 @@ class CurrentTimeReplacer {
     }
 
     void updateCurrentTime() throws IOException, URISyntaxException {
-        String textToUpdate = configObject.textToUpdate;
         File fileToUpdate = new File(configObject.fileToUpdate);
         File tempFile = File.createTempFile("java-ex-time-replaced-", null);
 
@@ -43,7 +42,7 @@ class CurrentTimeReplacer {
             reader = new BufferedReader(new FileReader(fileToUpdate));
             writer = new BufferedWriter(new FileWriter(tempFile));
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                writer.write(line.replaceAll(textToUpdate, currentTime));
+                writer.write(line.replaceAll(configObject.textToUpdate, currentTime));
                 writer.newLine();
             }
             tempFile.renameTo(fileToUpdate);

@@ -9,5 +9,4 @@ class Config {
     public TimeApiConfig timeApi;
     public String textToUpdate;
     public String fileToUpdate;
-    public String tempFile;
 }
