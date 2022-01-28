@@ -9,6 +9,8 @@ import kong.unirest.Unirest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 class CurrentTimeReplacer {
     private static final Logger logger = LogManager.getLogger();
     private Config configObject;
@@ -45,7 +47,6 @@ class CurrentTimeReplacer {
                 writer.write(line.replaceAll(configObject.textToUpdate, currentTime));
                 writer.newLine();
             }
-            tempFile.renameTo(fileToUpdate);
         } catch (IOException e) {
             tempFile.delete();
             throw e;
@@ -57,6 +58,7 @@ class CurrentTimeReplacer {
                 writer.close();
             }
         }
+        Files.move(tempFile.toPath(), fileToUpdate.toPath(), REPLACE_EXISTING);
     }
 }
 
