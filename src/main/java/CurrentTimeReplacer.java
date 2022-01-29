@@ -1,6 +1,6 @@
 import java.io.*;
-/*import java.nio.file.Files;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;*/
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kong.unirest.HttpResponse;
@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 class CurrentTimeReplacer {
   private final Config config;
   private static final Logger logger = Logger.getLogger(CurrentTimeReplacer.class);
-  private static final String TEMP_FILE_PATH = "tempFile.txt";
 
   CurrentTimeReplacer(String configFilePath) throws IOException {
     // mapper from json to and from java objects
@@ -51,12 +50,12 @@ class CurrentTimeReplacer {
 
   void updateCurrentTime() throws IOException {
     File fileToUpdate = new File(config.fileToUpdate);
-    File newFile = new File(TEMP_FILE_PATH);
+    File tempFile = File.createTempFile("java-ex-time-replaced-", null);
     String currentTime = getCurrentTime();
 
     // create reader for the old file and writer for the new file.
     try (BufferedReader reader = new BufferedReader(new FileReader(fileToUpdate));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(newFile))) {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
 
       logger.info("created reader and writer");
 
@@ -67,19 +66,12 @@ class CurrentTimeReplacer {
       }
 
     } catch (IOException e) {
-      if (!newFile.delete()) {
+      if (!tempFile.delete()) {
         logger.error("failed to delete the new file after IO exception", e);
       }
       logger.error("failed to create reader and writer", e);
       throw e;
     }
-
-    // replace current file with the updated file
-    if (!fileToUpdate.delete()) {
-      logger.info("failed to delete the old file");
-    }
-    if (!newFile.renameTo(fileToUpdate)) {
-      logger.info("failed to rename the old file");
-    }
+    Files.move(tempFile.toPath(), fileToUpdate.toPath(), REPLACE_EXISTING);
   }
 }
