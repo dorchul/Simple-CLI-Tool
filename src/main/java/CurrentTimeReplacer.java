@@ -1,105 +1,79 @@
 import java.io.*;
-import java.nio.file.Files;
+/*import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;*/
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 import org.apache.log4j.Logger;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
-class CurrentTimeReplacer
-{
+class CurrentTimeReplacer {
     private final Config config;
-/*    private final Logger logger;*/
+    private static final Logger logger = Logger.getLogger(CurrentTimeReplacer.class);
+    private static final String TEMP_FILE_PATH = "tempFile.txt";
 
-    CurrentTimeReplacer(String configFilePath) throws IOException
-    {
-/*        this.logger = logger;*/
-
-        // mapper from jason to/from java objects
+    CurrentTimeReplacer(String configFilePath) throws IOException {
+        // mapper from json to and from java objects
         ObjectMapper mapper = new ObjectMapper();
 
         // map config file to config object
         this.config = mapper.readValue(new File(configFilePath), Config.class);
-
-/*        this.logger.info("initialized config successfully");*/
+        logger.info("created config object: " + config.toString());
     }
 
-    private String getCurrentTime()
-    {
-        // get request to the time service api to get the current time at the specified location
+    private String getCurrentTime() {
+        // get request to the time service api
         HttpResponse<JsonNode> response = Unirest.get(config.timeApi.url)
                 .queryString("accesskey", config.timeApi.timeApiAccessKey)
                 .queryString("secretkey", config.timeApi.timeApiSecretKey)
                 .queryString("placeid", config.timeApi.placeId)
                 .asJson();
 
-        // return only the relevant field (time in iso format) as a string
-        return response.getBody().getObject().getJSONArray("locations").
+        logger.info("finished time service api request");
+
+        // extract the time in iso format
+        String isoTime = response.getBody().getObject().getJSONArray("locations").
                 getJSONObject(0).getJSONObject("time").get("iso").toString();
+
+        logger.info("Extracted time in iso format: " + isoTime);
+
+        return isoTime;
     }
 
-    void updateCurrentTime() throws IOException
-    {
-        File fileToUpdate;
-        if (config.fileToUpdate == null) {
-            fileToUpdate = new File("/home/input.txt");
-        } else {
-            fileToUpdate = new File(config.fileToUpdate);
-        }
-
-        // create a temporary file to buffer the updated text
-        File tempFile = File.createTempFile("java-ex-time-replaced-", null);
-
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-
-        // get the current time
+    void updateCurrentTime() throws IOException {
+        File fileToUpdate = new File(config.fileToUpdate);
+        File newFile = new File(TEMP_FILE_PATH);
         String currentTime = getCurrentTime();
 
-        try
-        {
-            // reader for the old content
-            reader = new BufferedReader(new FileReader(fileToUpdate));
+        // create reader for the old file and writer for the new file.
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileToUpdate));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(newFile))) {
 
-            // writer for the updated content
-            writer = new BufferedWriter(new FileWriter(tempFile));
-/*
+            logger.info("created reader and writer");
 
-            logger.info("created a buffered reader and writer successfully");
-*/
-
-            // iterate through file lines
-            // for each line, write the updated line to the file for the updated content
-            for (String line = reader.readLine(); line != null; line = reader.readLine())
-            {
+            // read from the old file and write to the new file, line by line.
+            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 writer.write(line.replaceAll(config.textToUpdate, currentTime));
                 writer.newLine();
             }
-        }
 
-        catch (IOException e)
-        {
-            tempFile.delete();
-/*            logger.error("failed file I/O operation", e);*/
+        } catch (IOException e) {
+
+            if (!newFile.delete()) {
+                logger.error("failed to delete the new file after IO exception", e);
+            }
+
+            logger.error("failed to create reader and writer", e);
             throw e;
         }
 
-        finally
-        {
-            if (reader != null)
-            {
-                reader.close();
-            }
-
-            if (writer != null)
-            {
-                writer.close();
-            }
-        }
-
         // replace current file with the updated file
-        Files.move(tempFile.toPath(), fileToUpdate.toPath(), REPLACE_EXISTING);
+        if (!fileToUpdate.delete()) {
+           logger.info("failed to delete the okd file"); }
+
+        if (!newFile.renameTo(fileToUpdate)) {
+            logger.info("failed to rename the old file");
+        }
     }
 }
