@@ -1,5 +1,20 @@
-run/
+# Exclude docker related files so that the docker layer cache won't be
+# invalidated when editing them because the build context changes.
+*Dockerfile*
+.dockerignore
+# Exclude git metadata
+.git
+.gitattributes
+.gitignore
+# Exclude docs
+*.md
+# Exclude config and text files
+*.json
+*.txt
+
+# Gitignore stuff
 target/
+run/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

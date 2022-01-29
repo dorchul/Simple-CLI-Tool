@@ -6,7 +6,10 @@ This project implements a CLI tool for replacing a string in a file with the cur
 
 - [Table of contents](#table-of-contents)
 - [Building with Maven](#building-with-maven)
-- [Running](#running)
+- [Running locally](#running-locally)
+- [Building with docker](#building-with-docker)
+- [Running with docker](#running-with-docker)
+- [Create a config file](#create-a-config-file)
 - [Generating an API key and secret](#generating-an-api-key-and-secret)
 
 ## Building with Maven
@@ -15,13 +18,35 @@ This project implements a CLI tool for replacing a string in a file with the cur
 - Clone the project
 - Run `mvn clean install` from the project's root directory
 
-## Running
+## Running locally
 
-- Create a json config file `config.json` containing the required parameters. See [this file](./config_example.json) for an example 
-  - Replace the API keys with [your own keys](#generating-an-api-key-and-secret)
-  - Replace `textToUpdate` with the template string you want to replace with the current time
-  - Replace `fileToUpdate` with the file you want to make the replacements in
-- Execute `mvn exec:java -Dexec.args="config.json"`
+- [Create a config file](#create-a-config-file) and put it in `run/config.json`
+- Execute `mvn exec:java -Dexec.args="run/config.json"`
+
+## Building with docker
+
+- Clone the project and run:
+
+  ```sh
+  docker build -t discount-ex .
+  ```
+
+## Running with docker
+
+- [Create a config file](#create-a-config-file) and put it in `run/config.json`
+  - Set `fileToUpdate` to `run/file.txt`.
+- Execute the following command and replace `path/to/file.txt` and `path/to/config.json`:
+
+  ```sh
+  docker run --rm -it "${PWD}/run:/app/run" discount-ex
+  ```
+
+## Create a config file
+
+See [this file](./config_example.json) for an example. Important parameters:
+- Replace the API keys with [your own keys](#generating-an-api-key-and-secret)
+- Replace `textToUpdate` with the template string you want to replace with the current time
+- Replace `fileToUpdate` with the file you want to make the replacements in
 
 ## Generating an API key and secret
 
