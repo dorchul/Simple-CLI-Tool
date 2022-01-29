@@ -1,0 +1,10 @@
+{
+  "timeApi": {
+    "url": "https://api.xmltime.com/timeservice",
+    "timeApiAccessKey": "YOUR_API_ACCESS_KEY",
+    "timeApiSecretKey": "YOUR_API_SECRET_KEY",
+    "placeId": "usa/new-york"
+  },
+  "textToUpdate": "CURRENT_TIME",
+  "fileToUpdate": "simple.txt"
+}
