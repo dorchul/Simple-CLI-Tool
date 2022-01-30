@@ -1,4 +1,4 @@
-# Discount exercise
+# Simple CLI Tool
 
 This project implements a CLI tool for replacing a string in a file with the current time in ISO format, obtained by calling the [timeanddate.com API](https://dev.timeanddate.com/).
 
