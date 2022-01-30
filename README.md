@@ -38,7 +38,7 @@ This project implements a CLI tool for replacing a string in a file with the cur
 - Execute the following command and replace `path/to/file.txt` and `path/to/config.json`:
 
   ```sh
-  docker run --rm -it "${PWD}/run:/app/run" discount-ex
+  docker run --rm -it -v "${PWD}/run:/app/run" discount-ex
   ```
 
 ## Create a config file
