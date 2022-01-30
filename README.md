@@ -35,7 +35,7 @@ This project implements a CLI tool for replacing a string in a file with the cur
 
 - [Create a config file](#create-a-config-file) and put it in `run/config.json`
   - Set `fileToUpdate` to `run/file.txt`.
-- Execute the following command and replace `path/to/file.txt` and `path/to/config.json`:
+- Execute the following command:
 
   ```sh
   docker run --rm -it -v "${PWD}/run:/app/run" discount-ex
