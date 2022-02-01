@@ -17,7 +17,8 @@ current time in ISO format, obtained by calling the
 
 ## Requirements
 
-- Linux, MacOS, or Windows
+- Linux
+  - MacOS and Windows should also work but were not tested
 - One of:
   - [Docker](https://docs.docker.com/get-docker/)
   - [Maven](https://maven.apache.org/install.html) and
